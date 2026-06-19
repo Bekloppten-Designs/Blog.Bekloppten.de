@@ -91,8 +91,7 @@ body {
 
 
 .Blog {
-    display: block; /* macht den Link zur Box */
-    
+    display: block;
     width: 300px;
     padding: 20px;
 
@@ -100,8 +99,12 @@ body {
     border-radius: 10px;
 
     text-decoration: none;
-    color: black;
     margin: 20px;
+}
+
+.Blog h4,
+.Blog p {
+    color: black;
 }
 
 .Blog:hover {
