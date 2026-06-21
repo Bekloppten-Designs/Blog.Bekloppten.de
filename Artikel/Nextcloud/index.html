@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eigende Cloud mit Nextcloud Betreiben</title>
+    <title>Eigene Cloud mit Nextcloud Betreiben</title>
     <link rel="stylesheet" href="/style.css">
-    <meta name="description" content="Eigende Cloud mit Nextcloud Betreiben.">
+    <meta name="description" content="Eigene Cloud mit Nextcloud Betreiben.">
 </head>
 <body>
 
@@ -94,7 +94,7 @@ Docker version 29.5.3, build d1c06ef
 <h2>📁 2. Ordnerstruktur vorbereiten</h2>
 
 <p>Damit wenn du Später mal mehr Container hast, legen wir eine Saubere Struktur an, damit die die einzelnen compose Dateien einfacher wiederfindest. <br>
-Die Fer tige Strucktur wird dann so aussehen:</p>
+Die Fertige Strucktur wird dann so aussehen:</p>
 
 <pre class="code"><code>
 /Docker
@@ -105,11 +105,11 @@ Die Fer tige Strucktur wird dann so aussehen:</p>
 <p>So erstellst du die Ordner:</p>
 
 <pre class="code"><code>
-mkdir -p ~/Docker/Nextcloud
+mkdir -p /Docker/Nextcloud
 </code></pre>
 
 <h2>☁️ 3. Nextcloud AIO Installation </h2>
-<p>Es gibt jetzt 2 methoden, entweder deine Späteren Cloud Daten liegen auf deinem Systemordner, oder auf einer anderen Platte:  </p>
+<p>Es gibt jetzt 2 Methoden, entweder deine Späteren Cloud Daten liegen auf deinem Systemordner, oder auf einer anderen Platte:  </p>
 <br>
 <h3>🧱 1. Grundprinzip: Wie Nextcloud AIO Speicher nutzt </h3>
 
@@ -189,7 +189,6 @@ services:
 
     environment:
       - WATCHTOWER_DOCKER_SOCKET_PATH=/var/run/docker.sock
-      - SKIP_DOMAIN_VALIDATION=true
       - APACHE_PORT=11000
 
     volumes:
@@ -226,7 +225,6 @@ services:
 
     environment:
       - WATCHTOWER_DOCKER_SOCKET_PATH=/var/run/docker.sock
-      - SKIP_DOMAIN_VALIDATION=true
       - APACHE_PORT=11000
 
     volumes:
@@ -346,7 +344,7 @@ sudo mkfs.ext4 /dev/sdb1
 <h4>4. Mountpunkt erstellen </h4>
 <p>Im Folgen Schritt legen wir fest, worüber die Platte erreichbar sein soll. <br>
 Das ist auch der Pfad den ihr in die Compose eintragen müsst. <br>
-Ich empfehle die Platten wie folgt zu benennen: <strong>platte_(plattennummer (also warscheineich 1))_(plattengröße)</strong><br>
+Ich empfehle die Platten wie folgt zu benennen: <strong>platte_(plattennummer (also wahrscheinlich 1))_(plattengröße)</strong><br>
 Also in meinem Beispiel:</p>
 
 <pre class="code"><code>
@@ -463,18 +461,18 @@ Bonus, wenn du magst kannst du jetzt einen Docker Verwalter wie <a href="">Yacht
 
 <img src="Bilder/FirefoxW.png" alt="Firefox Warnung">
 
-<p>Wenn du sowas siehst, keine Sorge, Nextcloud ist auf Github, wenn jemand da böswillig ist hätte das jemand schon längst gefunden :)</p>
+<p>Die Warnung erscheint, weil lokal ein selbstsigniertes Zertifikat genutzt wird – nicht automatisch wegen Unsicherheit.</p>
 
 
 <p class="warnung">
 ⚠️ Die Angezeigten Wörter sicher dir doppelt und 3 fach!!
 </p>
 
-<p>Trage die Wörter ein, und gebe im Nächten Fenster deine Domain ein</p>
+<p>Trage die Wörter ein, und gebe im nächsten Fenster deine Domain ein</p>
 
 <img src="Bilder/AIO.png" alt="container Starten">
 
-<p>Nun kannst du ALle Container Starten. Das kann etwas dauern...</p>
+<p>Nun kannst du Alle Container Starten. Das kann etwas dauern...</p>
 
 <img src="Bilder/Conatiner Starten.png" alt="Office auswählen">
 
