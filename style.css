@@ -208,3 +208,11 @@ a {
 
     color: #5c4300;
 }
+
+p {
+ line-height: 1.7em;
+}
+
+img {
+    width: 400px;
+}

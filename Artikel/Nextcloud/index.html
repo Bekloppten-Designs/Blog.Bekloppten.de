@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bekloppten-Blog</title>
+    <title>Eigende Cloud mit Nextcloud Betreiben</title>
     <link rel="stylesheet" href="/style.css">
     <meta name="description" content="Eigende Cloud mit Nextcloud Betreiben.">
 </head>
@@ -36,7 +36,7 @@
         <h2>Achtung: Diese Anleitung ist noch nicht Vollständig und damit Unbrauchbar</h2>
 
         <p class="warnung">
-Für den Hier Beschriebenen Weg Brauchst du ein kostenloses Konto bei Cloudflare und eine Domain. Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr. <br>Schaue dir auf jeden Fall vorher die <a href="">Cloudflare Tunnel</a> Anleitung an!
+Für den Hier Beschriebenen Weg Brauchst du ein kostenloses Konto bei Cloudflare und eine Domain. Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr. <br>Schaue dir auf jeden Fall vorher die <a href="../Cloudflare/index.html">Cloudflare Tunnel</a> Anleitung an!
 
      <h2>🧩 1. Was ist Nextcloud AIO?</h2>   
 
@@ -344,7 +344,145 @@ zram0       254:0    0     2G  0 disk [SWAP]
 sudo mkfs.ext4 /dev/sdb1
 </code></pre>
 
+<h4>4. Mountpunkt erstellen </h4>
+<p>Im Folgen Schritt legen wir fest, worüber die Platte erreichbar sein soll. <br>
+Das ist auch der Pfad den ihr in die Compose eintragen müsst. <br>
+Ich empfehle die Platten wie folgt zu benennen: <strong>platte_(plattennummer (also warscheineich 1))_(plattengröße)</strong><br>
+Also in meinem Beispiel:</p>
+
+<pre class="code"><code>
+sudo mkdir /mnt/platte_1_1
+</code></pre>
+
+<h4>5. Festplatte mounten</h4>
+<p>Nun verknüpfen wir den Ordner mit der Platte:</p>
+
+<pre class="code"><code>
+sudo mount /dev/sdb1 /mnt/platte_1_1
+</code></pre>
+
+<p>Prüfen wir mal:</p>
+
+<pre class="code"><code>
+df -h
+</code></pre>
+
+<p>In meinem Beispiel:</p>
+
+<pre class="code"><code></code>
+/dev/sda1       916G  2.6G  867G   1% /mnt/platte_1_1
+</code></pre>
+
+<h4>6. Automatisch beim Start einbinden (fstab)</h4>
+<p>Nun kümmern wir uns, das die Platte bei jedem Serverstart automatisch eingebunden wird: <br>
+UUID Herausfinden</p>
+
+<pre class="code"><code>
+sudo blkid
+</code></pre>
+
+<p>Da dann nach sowas suchen:</p>
+
+<pre class="code"><code>
+/dev/sdb1: UUID="abc-123"
+</code></pre>
+
+<p>Die UUID merken oder Aufschreiben <br>
+Danach diese Datei öffnen:</p>
+
+<pre class="code"><code>
+sudo nano /etc/fstab
+</code></pre>
+
+<p>Dann nach ganz unten Scrollen und diese Zeile eingeben:</p>
+
+<pre class="code"><code>
+UUID=abc-123 /mnt/platte_1_1 ext4 defaults 0 2
+</code></pre>
+
+<p>Die UUID und den Pfad sollen natürlich so wie bei dir sein!</p>
+<p>Danach Speichern: <br>
+STRG + O <br>
+ENTER <br>
+STRG + X
+</p>
+
+<p>Danach Testen:
+</p>
+
+<pre class="code"><code>
+sudo mount -a
+</code></pre>
+
+<p>Wenn nichts kommt:</p>
+
+<pre class="code"><code>
+sudo reboot
+</code></pre>
+
+<p>Wenn was kommt: Fehler Googlen</p>
+
+<h3>🛫 4. Nextcloud Starten</h3>
+<p>Gehe jetzt in diesen Ordner:</p>
+
+<pre class="code"><code>
+cd /Docker/Nextcloud
+</code></pre>
+
+<p>Und erstelle eine neue Datei:</p>
+
+<pre class="code"><code>
+nano compose.yaml
+</code></pre>
+
+<p>Da fügst du jetzt die Für dich Passende Compose aus schritt 3 ein.</p>
+
+<p>Danach Speichern: <br>
+STRG + O <br>
+ENTER <br>
+STRG + X
+</p>
+
+Jetzt muss du Nextcloud nur noch Starten:
+
+<pre class="code"><code>
+docker compose up -d
+</code></pre>
 
 
+<p class="warnung">
+Bonus, wenn du magst kannst du jetzt einen Docker Verwalter wie <a href="">Yacht</a> nutzen!
+</p>
 
+<h3>⚙️ 5. Nextcloud Einrichten</h3>
+
+<p>Erstelle jetzt in deinem Cloudflare Dashboard eine neue Route, die auf port 11000 Zeigt. <br> <br>
+    Wenn du jetzt nur Bahnhof verstehst, les dir die <a href="../Cloudflare/index.html">Cloudflare Tunnel</a> anleitung Durch!
+</p>
+
+<p>Gehe jetzt in deinem Browser auf https://DEINE_IP:8080/</p>
+
+<img src="Bilder/FirefoxW.png" alt="Firefox Warnung">
+
+<p>Wenn du sowas siehst, keine Sorge, Nextcloud ist auf Github, wenn jemand da böswillig ist hätte das jemand schon längst gefunden :)</p>
+
+
+<p class="warnung">
+⚠️ Die Angezeigten Wörter sicher dir doppelt und 3 fach!!
+</p>
+
+<p>Trage die Wörter ein, und gebe im Nächten Fenster deine Domain ein</p>
+
+<img src="Bilder/AIO.png" alt="container Starten">
+
+<p>Nun kannst du ALle Container Starten. Das kann etwas dauern...</p>
+
+<img src="Bilder/Conatiner Starten.png" alt="Office auswählen">
+
+<p>Während die Container starten kannst du deine Office anwendung wählen.  <br>
+Ich empfehle Collabora Office. <br>
+Lade die Seite ein Paar mal neu, und dann kannst du erst Richtig Loslegen. </p>
+
+<h2>In den Nächten Tagen kommt hier eine Anleitung zum Administrieren </h2>
+<h3>Wenn irgendetwas nicht funktioniert, melde dich bitte an ALS_TV@outlook.de. Damit hilfst du dir und allen anderen :)</h3>
 </main>
