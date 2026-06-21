@@ -36,7 +36,7 @@
         <h2>Achtung: Diese Anleitung ist noch nicht Vollständig und damit Unbrauchbar</h2>
 
         <p class="warnung">
-Für den Hier Beschriebenen Weg Brauchst du ein kostenloses Konto bei Cloudflare und eine Domain. Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr
+Für den Hier Beschriebenen Weg Brauchst du ein kostenloses Konto bei Cloudflare und eine Domain. Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr. <br>Schaue dir auf jeden Fall vorher die <a href="">Cloudflare Tunnel</a> Anleitung an!
 
      <h2>🧩 1. Was ist Nextcloud AIO?</h2>   
 
@@ -141,7 +141,7 @@ mkdir -p ~/Docker/Nextcloud
 → Muss VOR dem ersten Start gesetzt werden <br>
 <br>
 <p class="warnung">
-⚠️ Wenn du diesen Weg nutzen willst mache erst mit Schritt 3 weiter!
+⚠️ Wenn du diesen Weg nutzen willst mache erst mit Schritt 3 weiter! Der Teil - NEXTCLOUD_DATADIR=/mnt/platte_1_1/nextcloud_data wird bei dir auch sicherlich anders heißen also pass auf!
 </p>
 <strong>Compose‑Datei: </strong>
 
@@ -255,6 +255,94 @@ volumes:
 <p class="warnung">
 Diesen Schritt brauchst du nur wenn du Variante A oder C nutzt. Wenn du Variante B nutzt kannst du diesen Schritt überspringen 
 </p>
+<p>Damit nextcloud auch auf deine Platte zugreifen kann, musst du sie erst einbinden!</p>
+
+<h4>1️⃣ Festplatte identifizieren</h4>
+
+<pre class="code"><code>
+lsblk
+</code></pre>
+
+<p>Du wirst dann in etwa so was sehen:</p>
+
+<pre class="code"><code>
+NAME   SIZE TYPE MOUNTPOINT
+sda    500G disk
+├─sda1 499G part /
+sdb      1T disk
+</code></pre>
+
+<p>Suche nun deine Platte, das geht am besten anhand der Größe. <br> Wichtig: <br> sda → Systemplatte <br>
+sdb → neue Festplatte</p>
+
+<p class="warnung">
+⚠️ Wenn deine Platte nicht sdb heißt, mache hier AUF GAR KEINE FALL weiter, und hole dir Hilfe aus dem Internet!!
+</p>
+
+<h4>2. Partition erstellen</h4>
+
+<p>Partitionierungsprogramm öffnen:</p>
+
+<pre class="code"><code>
+sudo fdisk /dev/sdb
+</code></pre>
+
+<p>Danach solltest du in ein Fenster kommen. <br>
+Drücke da nacheinander:</p>
+
+<pre class="code"><code>
+n
+p
+1
+ENTER
+ENTER
+w
+</code></pre>
+
+<p>
+    <strong>Erklärung:</strong> <br>
+    <br>
+n → Neue Partition <br>
+p → Primär <br>
+1 → Partitionsnummer <br>
+ENTER → Standardwerte <br>
+w → Änderungen speichern <br>
+<br>
+Danach neu einlesen:
+</p>
+
+<pre class="code"><code>
+sudo partprobe
+</code></pre>
+
+<p>Schau dann noch mal nach:</p>
+
+<pre class="code"><code>
+lsblk
+</code></pre>
+
+<p>Danach sollte die Partition da sein. <br>
+Beispiel bei mir:</p>
+<pre class="code"><code>
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+loop0         7:0    0     2G  0 loop
+sda           8:0    0 931.5G  0 disk
+└─sda1        8:1    0 931.5G  0 part /mnt/platte_1_1
+mmcblk0     179:0    0 238.4G  0 disk
+├─mmcblk0p1 179:1    0   512M  0 part /boot/firmware
+└─mmcblk0p2 179:2    0 237.9G  0 part /
+zram0       254:0    0     2G  0 disk [SWAP]
+</code></pre>
+
+<h4>3. Festplatte formatieren</h4>
+<p class="warnung">
+⚠️ Achtung: Im folgenden Schritt werden alle Daten auf der Platte gelöscht. Ich übernehme keine Haftung falls was schief geht!!!
+</p>
+<p>Ich empfehle hier ext4 zu nutzen:</p>
+
+<pre class="code"><code>
+sudo mkfs.ext4 /dev/sdb1
+</code></pre>
 
 
 
