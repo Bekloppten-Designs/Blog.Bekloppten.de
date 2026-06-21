@@ -1,1 +1,262 @@
-Kommt Bald!!
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bekloppten-Blog</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="description" content="Eigende Cloud mit Nextcloud Betreiben.">
+</head>
+<body>
+
+    <!-- Der Banner-Bereich -->
+    <header class="hero-section">
+        <!-- Das Hintergrundvideo -->
+        <video autoplay loop muted playsinline class="hero-video">
+            <source src="Nextcloud.mp4" type="video/mp4">
+            Dein Browser kann dieses Video leider nicht abspielen...
+        </video>
+
+        <!-- Das große Logo oben links im Kasten -->
+         <a href="../../index.html">
+        <div class="logo-container">
+            <img class="logo" src="https://bekloppten.de/Infra/Bilder/B%20Schwartz.png" alt="Logo">
+        </div>
+        </a>
+
+        <!-- Die zentrierte Überschrift im Kasten -->
+         
+        <div class="hero-content">
+            <h1 class="Ueberschrift">Eigene Cloud mit Nextcloud</h1>
+        </div>
+    </header>
+
+    <!-- Der Inhalt unter dem Banner -->
+    <main class="main-content TextBlog">
+        <h2>Achtung: Diese Anleitung ist noch nicht Vollständig und damit Unbrauchbar</h2>
+
+        <p class="warnung">
+Für den Hier Beschriebenen Weg Brauchst du ein kostenloses Konto bei Cloudflare und eine Domain. Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr
+
+     <h2>🧩 1. Was ist Nextcloud AIO?</h2>   
+
+Nextcloud All‑in‑One (AIO) ist das offizielle Komplettpaket der Nextcloud‑Entwickler. <br>
+Es bringt alle Dienste (Webserver, Datenbank, Redis, Backup‑Container usw.) in einer einzigen, perfekt abgestimmten Docker‑Umgebung mit. <br>
+<br>
+Vorteile <br>
+<ul>
+   <li> automatische Updates </li>
+
+   <li> einfache Verwaltung über ein Web‑Interface </li>
+
+   <li> keine manuelle Konfiguration von MariaDB, Redis oder Cron </li>
+    </ul>
+
+    Ideal für Home‑Server und kleine Projekte
+
+  <h2> 🛠️ 1. Docker installieren </h2> 
+
+
+
+<p class="warnung">
+⚠️ Bitte überprüfe Befehle vor dem Ausführen. Ich übernehme keine Haftung.
+</p>
+
+<pre class="code"><code>
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+
+sudo install -m 0755 -d /etc/apt/keyrings
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+</code></pre>
+
+<h3>Testen</h3>
+
+<p>Teste einmal, ob die Installation erfolgreich war:</p>
+
+<pre class="code"><code>
+docker --version
+</code></pre>
+
+<p>Du solltest so eine Ähnliche Ausgabe bekommen:</p>
+
+<pre class="code"><code>
+Docker version 29.5.3, build d1c06ef
+</code></pre>
+
+<h2>📁 2. Ordnerstruktur vorbereiten</h2>
+
+<p>Damit wenn du Später mal mehr Container hast, legen wir eine Saubere Struktur an, damit die die einzelnen compose Dateien einfacher wiederfindest. <br>
+Die Fer tige Strucktur wird dann so aussehen:</p>
+
+<pre class="code"><code>
+/Docker
+└── /Nextcloud
+    └── compose.yaml
+</code></pre>
+
+<p>So erstellst du die Ordner:</p>
+
+<pre class="code"><code>
+mkdir -p ~/Docker/Nextcloud
+</code></pre>
+
+<h2>☁️ 3. Nextcloud AIO Installation </h2>
+<p>Es gibt jetzt 2 methoden, entweder deine Späteren Cloud Daten liegen auf deinem Systemordner, oder auf einer anderen Platte:  </p>
+<br>
+<h3>🧱 1. Grundprinzip: Wie Nextcloud AIO Speicher nutzt </h3>
+
+<p>Nextcloud AIO kennt zwei Arten von Speicher: <br>
+<br>
+    <strong>Haupt‑Datenspeicher </strong>  <br>
+    <br>
+    → wird über NEXTCLOUD_DATADIR gesetzt <br>
+    → enthält ALLE Benutzerdateien <br>
+    → muss VOR der Installation feststehen <br>
+<br>
+<br>
+    <strong>Externe Speicher </strong>  <br>
+    <br>
+    → werden später über das Plugin „External Storage Support“ eingebunden <br>
+    → erscheinen als Ordner in Nextcloud <br>
+    → können beliebig viele sein <br>
+</p>
+
+<h3>🧩 2. Unterschiedliche Compose‑Varianten </h3>
+
+<p>Du hast drei Möglichkeiten: </p>
+
+<h4>🟦 Variante A – Externe Festplatte als Hauptspeicher (bei z.b einem Raspi empfohlen) </h4>
+
+→ NEXTCLOUD_DATADIR zeigt direkt auf die Platte <br>
+→ Nextcloud speichert ALLE deine Daten dort <br>
+→ Muss VOR dem ersten Start gesetzt werden <br>
+<br>
+<p class="warnung">
+⚠️ Wenn du diesen Weg nutzen willst mache erst mit Schritt 3 weiter!
+</p>
+<strong>Compose‑Datei: </strong>
+
+<pre class="code"><code>
+services:
+  nextcloud-aio-mastercontainer:
+    image: nextcloud/all-in-one:latest
+    container_name: nextcloud-aio-mastercontainer
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      - WATCHTOWER_DOCKER_SOCKET_PATH=/var/run/docker.sock
+      - NEXTCLOUD_DATADIR=/mnt/platte_1_1/nextcloud_data
+      - APACHE_PORT=11000
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
+
+volumes:
+  nextcloud_aio_mastercontainer:
+    name: nextcloud_aio_mastercontainer
+
+</code></pre>
+<br>
+<h4>🟩 Variante B – Keine Festplatte einbinden </h4>
+
+→ NEXTCLOUD_DATADIR wird NICHT gesetzt <br>
+→ Nextcloud speichert alles im Docker‑Volume <br>
+→ Einfachste Variante <br>
+<br>
+<strong>Compose‑Datei: </strong>
+
+<pre class="code"><code>
+services:
+  nextcloud-aio-mastercontainer:
+    image: nextcloud/all-in-one:latest
+    container_name: nextcloud-aio-mastercontainer
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      - WATCHTOWER_DOCKER_SOCKET_PATH=/var/run/docker.sock
+      - SKIP_DOMAIN_VALIDATION=true
+      - APACHE_PORT=11000
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
+
+volumes:
+  nextcloud_aio_mastercontainer:
+    name: nextcloud_aio_mastercontainer
+
+</code></pre>
+<br>
+<h4>🟧 Variante C – Festplatte später über Plugin einbinden </h4>
+
+→ NEXTCLOUD_DATADIR bleibt Standard <br>
+→ Festplatte wird später als „External Storage“ eingebunden <br>
+→ Ideal für mehrere Platten oder NAS‑Mounts <br>
+<br>
+<strong>Compose‑Datei:</strong>
+
+<p class="warnung">
+⚠️ Bei den Volumes musst du schauen, wie es bei deinen Platten ist.
+</p>
+
+<pre class="code"><code>
+services:
+  nextcloud-aio-mastercontainer:
+    image: nextcloud/all-in-one:latest
+    container_name: nextcloud-aio-mastercontainer
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      - WATCHTOWER_DOCKER_SOCKET_PATH=/var/run/docker.sock
+      - SKIP_DOMAIN_VALIDATION=true
+      - APACHE_PORT=11000
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
+
+      # >>> WICHTIG: Externe Festplatten in den Container mounten <<<
+      # Jede Platte bekommt ihren eigenen Mount:
+      - /mnt/platte_1_1:/mnt/platte_1_1:rw
+      - /mnt/platte_2_1:/mnt/platte_2_1:rw
+      # Du kannst beliebig viele hinzufügen
+
+volumes:
+  nextcloud_aio_mastercontainer:
+    name: nextcloud_aio_mastercontainer
+
+</code></pre>
+
+<p class="warnung">
+⚠️ Jede Zeile Hinter den Rauten Entfernen
+</p>
+
+<h3>💽 3. Externe Festplatte korrekt mounten </h3>
+
+<p class="warnung">
+Diesen Schritt brauchst du nur wenn du Variante A oder C nutzt. Wenn du Variante B nutzt kannst du diesen Schritt überspringen 
+</p>
+
+
+
+
+</main>
