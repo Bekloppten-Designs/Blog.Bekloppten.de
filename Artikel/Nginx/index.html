@@ -1,1 +1,264 @@
-Kommt Bald!!
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eigener Webserver mit Nginx</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="description" content="Eigenden Webserver mit Nginx aufsetzen.">
+</head>
+<body>
+
+    <!-- Der Banner-Bereich -->
+    <header class="hero-section">
+        <!-- Das Hintergrundvideo -->
+        <video autoplay loop muted playsinline class="hero-video">
+            <source src="Nginx.mp4" type="video/mp4">
+            Dein Browser kann dieses Video leider nicht abspielen...
+        </video>
+
+        <!-- Das große Logo oben links im Kasten -->
+         <a href="../../index.html">
+        <div class="logo-container">
+            <img class="logo" src="https://bekloppten.de/Infra/Bilder/B%20Schwartz.png" alt="Logo">
+        </div>
+        </a>
+
+        <!-- Die zentrierte Überschrift im Kasten -->
+         
+        <div class="hero-content">
+            <h1 class="Ueberschrift">Eigener Webserver/Website mit Nginx</h1>
+        </div>
+    </header>
+
+    <!-- Der Inhalt unter dem Banner -->
+    <main class="main-content TextBlog">
+
+                <p class="warnung">
+Für den Hier Beschriebenen Weg Brauchst du bestenfalls ein kostenloses Konto bei Cloudflare und eine Domain. 
+Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr. <br>
+Schaue dir auf jeden Fall vorher die <a href="../Cloudflare/index.html">Cloudflare Tunnel</a> Anleitung an! <br>
+Außerdem Brauchst du <a href="../Docker/index.html">Docker</a>
+        </p>
+
+
+
+
+<p>Mit NGINX und Docker kannst du schnell statische Webseiten hosten. Jede Webseite ist einfach ein Ordner mit HTML-Dateien. </p>
+
+<h3>🚀 1. Eine einzelne Webseite </h3>
+<h4>📁 Ordner erstellen </h4>
+  <p class="warnung">
+⚠️ Bitte überprüfe Befehle vor dem Ausführen. Ich übernehme keine Haftung.
+</p>
+<pre class="code"><code>
+mkdir -p /Docker/Nginx/site
+</code></pre>
+<p>Du kannst site natürlich nenne wie du willst</p>
+
+
+<h4>🧾 HTML Datei erstellen </h4>
+<pre class="code"><code>
+nano /Docker/Nginx/site/index.html
+</code></pre>
+<p>Inhalt</p>
+
+<pre class="code"><code>
+läuft 
+</code></pre>
+
+<p>Danach Speichern: <br>
+STRG + O <br>
+ENTER <br>
+STRG + X
+</p>
+
+<h3>⚙️ Docker Compose anlegen </h3>
+<pre class="code"><code>
+nano /Docker/Nginx/compose.yaml
+</code></pre>
+
+<p>Inhalt:</p>
+
+<pre class="code"><code>
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_site
+    ports:
+      - "8080:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+</code></pre>
+
+
+
+<h4>▶️ Starten </h4>
+
+<pre class="code"><code>
+cd /Docker/Nginx
+docker compose up -d
+</code></pre>
+
+<p>Wenn eine Fehlermeldung kommt, trage in der Compose einen anderen Port ein</p>
+
+
+<h4>➡️ Öffnen: </h4>
+<p>http://DEINE_IP:8080 <br>
+   Jetzt kannst du mit <a href="../Cloudflare/index.html">Cloudflare</a> Die Seite öffentlich machen!</p>
+
+<h3>🌍 2. Mehrere Webseiten </h3>
+<h4>📁 Struktur</h4>
+
+<pre class="code"><code>
+/Docker/Nginx
+ ├── site1/
+ ├── site2/
+ └── site3/
+</code></pre>
+
+<h4>⚙️ Docker Compose </h4>
+
+<pre class="code"><code>
+services:
+  site1:
+    image: nginx:latest
+    container_name: site1
+    ports:
+      - "8081:80"
+    volumes:
+      - ./site1:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+  site2:
+    image: nginx:latest
+    container_name: site2
+    ports:
+      - "8082:80"
+    volumes:
+      - ./site2:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+  site3:
+    image: nginx:latest
+    container_name: site3
+    ports:
+      - "8083:80"
+    volumes:
+      - ./site3:/usr/share/nginx/html:ro
+    restart: unless-stopped
+</code></pre>
+
+<p>Dies kannst du natürlich Beliebig oft wiederholen für beliebig viele Seiten. <br>
+Füge wie oben jetzt zum Prüfen deine Test Daten ein. <br>
+Du kannst jetzt auch wie oben jede seite mit <a href="../Cloudflare/index.html">Cloudflare </a>Tunneln</p>
+
+
+<h4>🔄 Automatische Git‑Updates für Webseiten aus GitHub </h4>
+
+<p>Wenn deine Webseiten in einem GitHub‑Repository liegen, kannst du sie automatisch aktuell halten. <br>
+Dazu wird das Repo einmal in den jeweiligen Ordner geklont und danach regelmäßig per Skript aktualisiert. </p>
+<h4>1️⃣ Git Installieren Git‑Repository in die Website‑Ordner klonen </h4>
+
+<pre class="code"><code>
+sudo apt update && sudo apt install git -y
+</code></pre>
+
+<p>Beispiel für drei Seiten: </p>
+
+<p class="warnung">
+⚠️ Entferne alle Testdaten aus den Ordnern, bevor du den Nächten schritt machst
+</p>
+
+<pre class="code"><code>
+cd /Docker/Nginx/site1
+git clone https://github.com/dein-user/dein-repo-site1.git .
+</code></pre>
+
+<pre class="code"><code>
+cd /Docker/Nginx/site2
+git clone https://github.com/dein-user/dein-repo-site2.git .
+</code></pre>
+
+<pre class="code"><code>
+cd /Docker/Nginx/site3
+git clone https://github.com/dein-user/dein-repo-site3.git .
+</code></pre>
+
+    <p class="warnung">
+Wichtig: Der Punkt . am Ende sorgt dafür, dass die Dateien direkt in site1, site2, site3 landen. 
+</p>
+
+<h4>2️⃣ Skript‑Ordner und Update‑Skripte</h4>
+
+<p>Lege einen Skript‑Ordner an: </p>
+
+<pre class="code"><code>
+mkdir -p /Docker/Nginx/scripts
+</code></pre>
+
+<p>Struktur: </p>
+
+<pre class="code"><code>
+/Docker/Nginx/
+ ├── site1/
+ ├── site2/
+ ├── site3/
+ ├── compose.yaml
+ └── scripts/
+      ├── update_site1.sh
+      ├── update_site2.sh
+      └── update_site3.sh
+</code></pre>
+
+<p>Nun legen wir die Scripts an</p>
+<pre class="code"><code>
+nano /Docker/Nginx/scripts/update_site1.sh
+</code></pre>
+
+<pre class="code"><code>
+#!/bin/bash
+cd /Docker/Nginx/site1 || exit
+git pull
+</code></pre>
+
+<p>Danach Speichern: <br>
+STRG + O <br>
+ENTER <br>
+STRG + X
+</p>
+
+<p>Mach das jetzt für alle deine Seiten</p>
+
+
+<p>Ausführbar machen:</p>
+<pre class="code"><code>
+chmod +x /Docker/Nginx/scripts/*.sh
+</code></pre>
+
+
+
+<h4>3️⃣ Cronjob: Automatische Updates alle 5 Minuten</h4>
+
+<p>Cron öffnen:</p>
+<pre class="code"><code>
+crontab -e
+</code></pre>
+
+
+Eintragen:
+<pre class="code"><code>
+*/5 * * * * /Docker/Nginx/scripts/update_site1.sh
+*/5 * * * * /Docker/Nginx/scripts/update_site2.sh
+*/5 * * * * /Docker/Nginx/scripts/update_site3.sh
+</code></pre>
+<p>Die 5 Steht für die minuten. <br>
+Ergänze hier alle deine Seiten. <br>
+Immer wenn du jetzt auf Github ein änderung machst, wird sie direkt auf deinem server übernommen</p>
+
+
+
+<h3>Wenn irgendetwas nicht funktioniert, melde dich bitte an ALS_TV@outlook.de. Damit hilfst du dir und allen anderen :)</h3>
+</main>
