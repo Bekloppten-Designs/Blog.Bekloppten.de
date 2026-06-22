@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eigene Cloud mit Nextcloud Betreiben</title>
+    <title>Eigene Dienste sicher veröffentlichen – Cloudflare Tunnel</title>
     <link rel="stylesheet" href="/style.css">
-    <meta name="description" content="Eigene Cloud mit Nextcloud Betreiben.">
+    <meta name="description"
+        content="Eigene Dienste sicher mit Cloudflare Tunnel veröffentlichen – Schritt-für-Schritt mit Docker Compose.">
 </head>
 <body>
 
@@ -27,14 +28,190 @@
         <!-- Die zentrierte Überschrift im Kasten -->
          
         <div class="hero-content">
-            <h1 class="Ueberschrift">Eigene Cloud mit Nextcloud</h1>
+            <h1 class="Ueberschrift">Eigene Dienste sicher veröffentlichen mit Cloudflare</h1>
         </div>
     </header>
 
     <!-- Der Inhalt unter dem Banner -->
     <main class="main-content TextBlog">
 
-        <h1>Bald siehst du hier was!</h1>
+    <p>Du möchtest einen Dienst aus deinem Heimnetz oder Server veröffentlichen,
+    ohne Ports im Router freizugeben? 
+    <br>
+    Mit einem <strong>Cloudflare Tunnel</strong> geht das einfach und sicher: <br>
+    Dein Server baut selbst eine ausgehende Verbindung zu 
+    Cloudflare auf und Cloudflare leitet Anfragen an deinen Dienst weiter. </p>
+
+Du brauchst: <br>
+ <br>
+ <ul>
+<li>✅ Eine Domain (hier: Beispiel mit Netcup, ab 5€ im Jahr) </li>
+<li>🐳 Docker(Haben wir <a href="/Artikel/Nextcloud/index.html">Hier</a> schon gezeigt ) </li>
+<li>🖥️ Einen lokalen Webdienst (z. B. Nextcloud, Website oder Dashboard) </li>
+
+</ul>
+
+
+<h3> 1️⃣ Domain zu Cloudflare hinzufügen</h3>
+
+<p>Melde dich bei <a href="https://Dash.cloudflare.com">Cloudflare</a> an und füge über Add -> Connect a domain deine Domain hinzu. </p>
+
+<a href="Bilder/Domain-Hinzufügen.png">
+<img src="Bilder/Domain-Hinzufügen.png" alt="Domain hinzufügen">
+</a>
+
+<p>Cloudflare zeigt dir anschließend neue Nameserver an. <br>
+Kopiere dir Beide </p>
+
+<p>Wenn deine Domain bei Netcup liegt: </p>
+
+1. 🔐 Im <a href="https://www.customercontrolpanel.de/?login_language=de-DE"> Customer Control Panel </a> anmelden <br>
+2. 🌍 Domain auswählen <br>
+3. ⚙️ DNS / Nameserver öffnen <br>
+4. ☁️ Cloudflare-Nameserver eintragen (Um dahin zu kommen musst du auf die Lupe klicken)<br>
+5. 💾 Änderungen speichern <br>
+<br>
+<a href="Bilder/Nameserver.png">
+<img src="Bilder/Nameserver.png" alt="Nameserver Bearbeiten">
+</a>
+
+<p>⏳ Die Umstellung kann einige Minuten bis Stunden dauern. </p>
+
+
+<h3> 2️⃣ Tunnel in Cloudflare erstellen</h3>
+
+1. ☁️ <a href="https://dash.cloudflare.com/">Cloudflare Dashboard </a> öffnen <br>
+2. ⬅️ Seitenleiste Öffnen <br>
+3. 🌐 Networks → Tunnels <br>
+4. ➕ Create Tunnel <br>
+5. 🏷️ Tunnel benennen <br>
+6. 🐳 Typ: Docker <br>
+
+<p>Cloudflare zeigt danach einen Docker-Befehl an öffne diesen in einem texteditor deiner Wahl </p>
+
+<p>Du siehst jetzt so eine Textwurst:</p>
+
+<pre class="code"><code>
+docker run cloudflare/cloudflared:latest tunnel --no-autoupdate run --token BlaBlaBlaBlaBlaBlaBlaBlaBlaBlaBlaBlaBlaBlaBla
+</code></pre>
+
+<p class="warnung">
+⚠️ Gib deinen Token an NIEMANDEN Weiter!!!
+</p>
+
+
+
+<h3> 3️⃣ Docker Compose erstellen </h3>
+
+<p class="warnung">
+⚠️ Bitte überprüfe Befehle vor dem Ausführen. Ich übernehme keine Haftung.
+</p>
+
+<h4>Datei anlegen: </h4>
+<p>Gehe in dein Home verzeichnis.
+    <br>
+    Dann:
+</p>
+<pre class="code"><code>
+mkdir -p /Docker/Cloudflare
+cd /Docker/Cloudflare
+nano compose.yaml
+</code></pre>
+
+
+
+<p>Inhalt: </p>
+
+<pre class="code"><code>
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token DEIN_TOKEN 
+</code></pre>
+
+<p>Ersetze DEIN_TOKEN durch deinen Tunnel-Token.</p>
+
+<p>Danach Speichern: <br>
+STRG + O <br>
+ENTER <br>
+STRG + X
+</p>
+
+<h3>4️⃣ Container starten </h3>
+
+<p>Tunnel starten: </p>
+
+<pre class="code"><code>
+docker compose up -d
+</code></pre>
+
+<p>✅ Wenn alles klappt, sollte die Verbindung aufgebaut werden. <br>
+Deine Cloudflare Seite sollte sich jetzt auch aktualisieren </p>
+
+
+
+<h3> 5️⃣ Öffentlichen Hostnamen erstellen </h3>
+
+<p>Zurück im Cloudflare Dashboard: <br>
+
+Routes -> ➕ Add route -> Published application
+<br>
+Beispiel: </p>
+<a href="Bilder/Route.png">
+<img src="Bilder/Route.png" alt="Route Hinzufügen">
+</a>
+
+<p>Ergebnis: </p>
+
+<pre class="code"><code>
+cloud.deine-domain.de → DEINE_IP:11000
+</code></pre>
+
+<p>🌍 Jetzt leitet Cloudflare alle Anfragen an deinen lokalen Dienst weiter. </p>
+
+<h3>✨ Beliebig viele Routen Hinzufügen </h3>
+
+<p>Ein Tunnel kann mehrere Dienste weiterleiten: </p>
+
+<pre class="code"><code>
+nextcloud.domain.de → localhost:11000
+grafana.domain.de → localhost:3000
+wiki.domain.de → localhost:8080
+</code></pre>
+
+
+
+<p>🎯 Dadurch brauchst du keine offenen Ports. </p>
+
+
+
+<h3> 🛠 Fehlerbehebung </h3>
+
+
+
+<h4> ⚠️ 502 Bad Gateway </h4>
+<a href="Bilder/Bad_Gateway.png">
+<img src="Bilder/Bad_Gateway.png" alt="Bad Gateway Error">
+</a>
+
+<p>Meist läuft der Zielcontainer nicht oder der Port stimmt nicht. <br>
+Es kann auch sein, das Cloudflare einfach etwas Bearbeitungszeit braucht</p>
+
+<p>Teste den Dienst Lokal aufzurufen: z.b http://DEINE_IP:8083 </p>
+
+
+<h3> 🎉 Fazit </h3>
+
+<p>Cloudflare Tunnel ist eine praktische Möglichkeit, Dienste sicher aus dem Heimnetz oder Server zu veröffentlichen – ohne Portfreigaben. <br>
+
+Mit Docker Compose bleibt das Setup übersichtlich und neue Dienste lassen sich später schnell ergänzen.
+
+🚀 Viel Spaß beim Einrichten!
+
+</p>
+
 
 <h3>Wenn irgendetwas nicht funktioniert, melde dich bitte an ALS_TV@outlook.de. Damit hilfst du dir und allen anderen :)</h3>
 </main>

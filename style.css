@@ -4,6 +4,7 @@ body {
     padding: 0;
     text-decoration: none !important;
     background-color: #F5F5F5;
+    scroll-behavior: smooth;
 }
 
 
@@ -101,6 +102,10 @@ body {
 
     text-decoration: none;
     margin: 20px;
+}
+
+.KatiBlog {
+    background-color: #ffc8158e;
 }
 
 .Blog h4,
