@@ -35,7 +35,11 @@
     <main class="main-content TextBlog">
 
         <p class="warnung">
-Für den Hier Beschriebenen Weg Brauchst du ein kostenloses Konto bei Cloudflare und eine Domain. Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr. <br>Schaue dir auf jeden Fall vorher die <a href="../Cloudflare/index.html">Cloudflare Tunnel</a> Anleitung an!
+Für den Hier Beschriebenen Weg Brauchst du ein kostenloses Konto bei Cloudflare und eine Domain. 
+Diese Bekommst du bei Anbietern wie Netcup für 5€ im Jahr. <br>
+Schaue dir auf jeden Fall vorher die <a href="../Cloudflare/index.html">Cloudflare Tunnel</a> Anleitung an! <br>
+Außerdem Brauchst du <a href="../Docker/index.html">Docker</a>
+        </p>
 
      <h2>🧩 1. Was ist Nextcloud AIO?</h2>   
 
@@ -53,44 +57,11 @@ Vorteile <br>
 
     Ideal für Home‑Server und kleine Projekte
 
-  <h2> 🛠️ 1. Docker installieren </h2> 
-
-
-
-<p class="warnung">
+  <p class="warnung">
 ⚠️ Bitte überprüfe Befehle vor dem Ausführen. Ich übernehme keine Haftung.
 </p>
 
-<pre class="code"><code>
-sudo apt update
-sudo apt install -y ca-certificates curl gnupg
-
-sudo install -m 0755 -d /etc/apt/keyrings
-
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-</code></pre>
-
-<h3>Testen</h3>
-
-<p>Teste einmal, ob die Installation erfolgreich war:</p>
-
-<pre class="code"><code>
-docker --version
-</code></pre>
-
-<p>Du solltest so eine Ähnliche Ausgabe bekommen:</p>
-
-<pre class="code"><code>
-Docker version 29.5.3, build d1c06ef
-</code></pre>
-
+ 
 <h2>📁 2. Ordnerstruktur vorbereiten</h2>
 
 <p>Damit wenn du Später mal mehr Container hast, legen wir eine Saubere Struktur an, damit du die einzelnen compose Dateien einfacher wiederfindest. <br>
