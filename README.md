@@ -2,7 +2,5 @@
 Unser Blog: Blog.bekloppten.de
 <br>
 Diese Artikel sind noch geplant: <br>
-- Docker
 - Yacht 
-- Cloudflare Tunnel 
-- Nginx
+- Nginx beschschreibung Hinzufügen
